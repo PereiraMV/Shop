@@ -1,8 +1,11 @@
-﻿using Shop.Core.Models;
+﻿using Shop.Core.Logic;
+using Shop.Core.Models;
 using Shop.Core.ViewModels;
 using Shop.DataAcess.InMemory;
+using Shop.DataAcess.SQL;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -11,13 +14,13 @@ namespace Shop.WebUi.Controllers
 {
     public class ProductManagerController : Controller
     {
-        ProductRepository context;
-        ProductCategoryRepository contextCategory;
+        IRepository<Product> context;
+        IRepository<ProductCategory> contextCategory;
 
         public ProductManagerController()
         {
-            context = new ProductRepository();
-            contextCategory = new ProductCategoryRepository();
+            context = new SQLRepository<Product>(new MyContext());
+            contextCategory = new SQLRepository<ProductCategory>(new MyContext());
         }
 
 
@@ -40,17 +43,22 @@ namespace Shop.WebUi.Controllers
         }
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public ActionResult Create(Product p)
+        public ActionResult Create(Product Product, HttpPostedFileBase image)
         {
 
 
             if (!ModelState.IsValid)
             {
-                return View(p);
+                return View(Product);
             }
             else
             {
-                context.Insert(p);
+                if (image != null)
+                {
+                    Product.Image = Product.Name + Path.GetExtension(image.FileName);
+                    image.SaveAs(Server.MapPath("~/Content/ProdImage/") + Product.Image);
+                }
+                context.Insert(Product);
                 context.saveChanges();
                 return RedirectToAction("Index");
             }
@@ -83,38 +91,39 @@ namespace Shop.WebUi.Controllers
         }
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public ActionResult Edit(Product product, int id)
+        public ActionResult Edit(Product product, int id, HttpPostedFileBase image)
         {
 
             try
             {
-                Product prodTotEdit = context.FindById(id);
-                if (prodTotEdit == null)
-                {
-                    return HttpNotFound();
-                }
-                else
-                {
+                //Product prodTotEdit = context.FindById(id);
+                //if (prodTotEdit == null)
+                //{
+                //    return HttpNotFound();
+                //}
+                //else
+                //{
                     if (!ModelState.IsValid)
                     {
                         return View(product);
                     }
                     else
                     {
-                        //context.Update(product); ce n'est pas un context Entity Framework
-                        prodTotEdit.Name = product.Name;
-                        prodTotEdit.Description = product.Description;
-                        prodTotEdit.Category = product.Category;
-                        prodTotEdit.Id = product.Id;
-                        prodTotEdit.Price = product.Price;
-                        prodTotEdit.Image = product.Image;
+
+                        if (image != null)
+                        {
+                            product.Image = product.Name + Path.GetExtension(image.FileName);
+                            image.SaveAs(Server.MapPath("~/Content/ProdImage/") + product.Image);
+                        }
+                        
+                        context.Update(product);
                         
 
 
                         context.saveChanges();
                         return RedirectToAction("Index");
                     }
-                }
+                //}
 
 
                 
