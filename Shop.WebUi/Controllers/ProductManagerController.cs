@@ -1,4 +1,5 @@
 ﻿using Shop.Core.Models;
+using Shop.Core.ViewModels;
 using Shop.DataAcess.InMemory;
 using System;
 using System.Collections.Generic;
@@ -11,10 +12,12 @@ namespace Shop.WebUi.Controllers
     public class ProductManagerController : Controller
     {
         ProductRepository context;
+        ProductCategoryRepository contextCategory;
 
         public ProductManagerController()
         {
             context = new ProductRepository();
+            contextCategory = new ProductCategoryRepository();
         }
 
 
@@ -30,8 +33,10 @@ namespace Shop.WebUi.Controllers
 
         public ActionResult Create()
         {
-            Product p = new Product();
-            return View(p);
+            ProductCategoryViewModel viewModel = new ProductCategoryViewModel();
+            viewModel.Product = new Product();
+            viewModel.ProductCategories = contextCategory.Collection();
+            return View(viewModel);
         }
         [ValidateAntiForgeryToken]
         [HttpPost]
@@ -63,7 +68,10 @@ namespace Shop.WebUi.Controllers
                 }
                 else
                 {
-                    return View(p);
+                    ProductCategoryViewModel viewModel = new ProductCategoryViewModel();
+                    viewModel.Product = p;
+                    viewModel.ProductCategories = contextCategory.Collection();
+                    return View(viewModel);
                 }
             }
             catch (Exception)
