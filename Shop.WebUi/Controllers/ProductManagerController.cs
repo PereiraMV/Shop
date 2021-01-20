@@ -55,7 +55,21 @@ namespace Shop.WebUi.Controllers
             {
                 if (image != null)
                 {
-                    Product.Image = Product.Name + Path.GetExtension(image.FileName);
+                    //Recupérer la valeur max de l'ID à partir de la base de donnée
+                    int maxId;
+                    try
+                    {
+                        // si la table est vide, la méthode Max renvoie null.
+                        maxId = context.Collection().Max(p => p.Id);
+                        
+                    }
+                    catch (Exception)
+                    {
+
+                        maxId = 0;
+                    }
+                    int nextId = maxId + 1;
+                    Product.Image = nextId + Path.GetExtension(image.FileName);
                     image.SaveAs(Server.MapPath("~/Content/ProdImage/") + Product.Image);
                 }
                 context.Insert(Product);
@@ -112,7 +126,7 @@ namespace Shop.WebUi.Controllers
 
                         if (image != null)
                         {
-                            product.Image = product.Name + Path.GetExtension(image.FileName);
+                            product.Image = product.Id + Path.GetExtension(image.FileName);
                             image.SaveAs(Server.MapPath("~/Content/ProdImage/") + product.Image);
                         }
                         

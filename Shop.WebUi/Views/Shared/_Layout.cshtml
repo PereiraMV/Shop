@@ -25,6 +25,19 @@
                     <li>@Html.ActionLink("Product Admin", "Index", "ProductManager")</li>
                     <li>@Html.ActionLink("Category Admin", "Index", "ProductCategory")</li>
                 </ul>
+                <ul class="nav navbar-nav">
+                    @if (Session["nbProd"] != null)
+                    {
+                        <li>@Html.ActionLink("Panier(" + Session["nbProd"] + ")", "Panier", "Achat")</li>
+                    }
+
+
+                </ul>
+                <ul class=" nav navbar-nav navbar-right ">
+                    <li>@Html.ActionLink("Créer un compte", "Create", "Utilisateur")</li>
+                    <li>@Html.ActionLink("Connexion", "Connect", "Login")</li>
+                </ul>
+
             </div>
         </div>
     </div>
